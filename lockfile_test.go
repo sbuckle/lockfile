@@ -6,6 +6,13 @@ import (
 	"testing"
 )
 
+func TestLockRemoved(t *testing.T) {
+	lock := New("/tmp/test.lock")
+	if err := lock.Unlock(); err != ErrNotExist {
+		t.Error("Expected to receive ErrNotExist error")
+	}
+}
+
 func TestLockOption(t *testing.T) {
 	retries := 5
 	lock := New("/tmp/test.lock", SetMaxRetries(retries))

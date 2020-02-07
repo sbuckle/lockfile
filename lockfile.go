@@ -7,12 +7,8 @@ import (
 )
 
 var (
-	ErrTimeout = errors.New("Failed to acquire in specified time interval")
-)
-
-const (
-	retries  = 1
-	interval = 8
+	ErrTimeout  = errors.New("Failed to acquire in specified time interval")
+	ErrNotExist = errors.New("Lockfile does not exist")
 )
 
 type Lockfile struct {
@@ -37,9 +33,8 @@ func SetInterval(i int) Option {
 
 func New(path string, opts ...Option) Lockfile {
 	lf := Lockfile{
-		path:     path,
-		retries:  retries,
-		interval: interval,
+		path:    path,
+		retries: 1,
 	}
 	for _, opt := range opts {
 		opt(&lf)
@@ -61,12 +56,17 @@ func (l Lockfile) Lock() error {
 		if !os.IsExist(err) {
 			return err
 		}
-		time.Sleep(time.Duration(l.interval) * time.Second)
+		if l.interval > 0 {
+			time.Sleep(time.Duration(l.interval) * time.Second)
+		}
 		i += 1
 	}
 	return nil
 }
 
 func (l Lockfile) Unlock() error {
+	if _, err := os.Stat(l.path); os.IsNotExist(err) {
+		return ErrNotExist
+	}
 	return os.Remove(l.path)
 }
