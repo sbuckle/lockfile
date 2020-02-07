@@ -20,13 +20,7 @@ func TestLockFileExists(t *testing.T) {
 }
 
 func TestLockUnlock(t *testing.T) {
-	//tmpfile, err := ioutil.TempFile("", "lock")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//defer os.Remove(tmpfile.Name())
 	lock := New("/tmp/test.lock")
-
 	err := lock.Lock()
 	if err != nil {
 		t.Error("Failed to acquire file lock")
