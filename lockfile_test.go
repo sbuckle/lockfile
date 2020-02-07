@@ -6,6 +6,30 @@ import (
 	"testing"
 )
 
+func TestLockOption(t *testing.T) {
+	retries := 5
+	lock := New("/tmp/test.lock", SetMaxRetries(retries))
+	if lock.retries != retries {
+		t.Errorf("Expected %d got %d", retries, lock.retries)
+	}
+}
+
+func TestFailToAcquireLock(t *testing.T) {
+	tmpfile, err := ioutil.TempFile("", "lock")
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	lock := New(tmpfile.Name(), SetMaxRetries(2), SetInterval(2))
+	err = lock.Lock()
+	if err != nil {
+		if err != ErrTimeout {
+			t.Error("Expected ErrTimeout error")
+		}
+	}
+}
+
 func TestLockFileExists(t *testing.T) {
 	tmpfile, err := ioutil.TempFile("", "lock")
 	if err != nil {
