@@ -32,10 +32,7 @@ func SetInterval(i int) Option {
 }
 
 func New(path string, opts ...Option) Lockfile {
-	lf := Lockfile{
-		path:    path,
-		retries: 1,
-	}
+	lf := Lockfile{path: path, retries: 1}
 	for _, opt := range opts {
 		opt(&lf)
 	}
