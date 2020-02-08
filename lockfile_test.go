@@ -7,7 +7,15 @@ import (
 )
 
 func TestLockRemoved(t *testing.T) {
-	lock := New("/tmp/test.lock")
+	tmpfile, err := ioutil.TempFile("", "lock")
+	if err != nil {
+		panic(err)
+	}
+	lock := New(tmpfile.Name())
+	lock.Lock()
+
+	os.Remove(tmpfile.Name())
+
 	if err := lock.Unlock(); err != ErrNotExist {
 		t.Error("Expected to receive ErrNotExist error")
 	}
